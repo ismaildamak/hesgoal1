@@ -348,26 +348,33 @@
     }
 
     // Refresh widget with optional league filter
-    function refreshWidget(leagueId) {
-      document.getElementById('standings-content').innerHTML = '';
-      document.getElementById('team-content').innerHTML = '';
-
-      var container = document.getElementById('widget-container');
-      var favs = loadFavs();
-      var leagues = leagueId ? [leagueId] : (favs.length > 0 ? favs : null);
-
+    function buildWidgetHTML(leagues) {
       if (leagues) {
-        // Write widget tags directly as HTML — this is the only reliable way
-        // to trigger the custom element lifecycle (same as static HTML tags)
         var html = '';
         leagues.forEach(function(fid) {
           html += '<div class="league-block"><api-sports-widget data-type="games" data-league="' + fid + '" data-date="' + currentDate + '"></api-sports-widget></div>';
         });
-        container.innerHTML = html;
-      } else {
-        // No filter — one widget, all games
-        container.innerHTML = '<api-sports-widget data-type="games" data-date="' + currentDate + '"></api-sports-widget>';
+        return html;
       }
+      return '<api-sports-widget data-type="games" data-date="' + currentDate + '"></api-sports-widget>';
+    }
+
+    function refreshWidget(leagueId) {
+      document.getElementById('standings-content').innerHTML = '';
+      document.getElementById('team-content').innerHTML = '';
+
+      var favs = loadFavs();
+      var leagues = leagueId ? [leagueId] : (favs.length > 0 ? favs : null);
+      var html = buildWidgetHTML(leagues);
+
+      // Remove container from DOM, replace with a fresh clone, re-insert
+      // This forces the browser to re-parse and upgrade all custom elements
+      var old = document.getElementById('widget-container');
+      var parent = old.parentNode;
+      var fresh = document.createElement('div');
+      fresh.id = 'widget-container';
+      fresh.innerHTML = html;
+      parent.replaceChild(fresh, old);
     }
 
     // Update sidebar active state + filter badge
