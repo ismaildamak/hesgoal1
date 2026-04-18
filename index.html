@@ -1,224 +1,226 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LiveScore Smart</title>
+<title>LiveScore Pro (FlashScore UI Clone)</title><script type="module" src="https://widgets.api-sports.io/3.1.0/widgets.js"></script><style>
+:root{
+  --bg:#0b0b0b;
+  --panel:#141414;
+  --panel2:#1b1b1b;
+  --border:#262626;
+  --text:#fff;
+  --muted:#8a8a8a;
+  --green:#00d25b;
+}
 
-<script type="module" src="https://widgets.api-sports.io/3.1.0/widgets.js"></script>
+body.light{
+  --bg:#f4f4f4;
+  --panel:#ffffff;
+  --panel2:#f0f0f0;
+  --border:#ddd;
+  --text:#111;
+  --muted:#666;
+}
 
-<style>
 body{
   margin:0;
-  font-family:sans-serif;
-  transition:0.3s;
+  font-family:system-ui;
+  background:var(--bg);
+  color:var(--text);
 }
 
-/* THEMES */
-body.dark{
-  background:#0e0e0e;
-  color:#fff;
-}
-body.light{
-  background:#f5f5f5;
-  color:#111;
-}
-
-/* HEADER */
-.header{
+/* TOP BAR */
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:12px;
-  border-bottom:1px solid #222;
+  padding:10px 12px;
+}
+
+.logo{
+  font-weight:800;
+  color:var(--green);
 }
 
 .btn{
-  padding:6px 10px;
-  border:1px solid #333;
   background:none;
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:6px 10px;
   border-radius:6px;
   cursor:pointer;
 }
 
-/* LEAGUES */
-.leagues{
-  display:flex;
-  overflow-x:auto;
+/* LAYOUT */
+.container{
+  display:grid;
+  grid-template-columns:260px 1fr;
   gap:10px;
+  max-width:1200px;
+  margin:auto;
   padding:10px;
+}
+
+@media(max-width:900px){
+  .container{grid-template-columns:1fr}
+}
+
+/* LEFT SIDEBAR */
+.sidebar{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  height:calc(100vh - 70px);
+  overflow:auto;
+  position:sticky;
+  top:60px;
 }
 
 .league{
-  padding:6px 10px;
-  border-radius:8px;
-  white-space:nowrap;
-  cursor:pointer;
-  font-size:13px;
   display:flex;
   align-items:center;
-  gap:6px;
-  background:#1a1a1a;
+  gap:8px;
+  padding:10px;
+  cursor:pointer;
+  border-bottom:1px solid var(--border);
+  font-size:13px;
 }
 
-body.light .league{
-  background:#ddd;
-}
+.league:hover{background:var(--panel2)}
 
 .league.active{
-  background:#00d25b;
-  color:#000;
+  background:rgba(0,210,91,0.15);
+  border-left:3px solid var(--green);
 }
 
-/* WIDGET */
+.league img{
+  width:18px;
+  height:18px;
+}
+
+/* MAIN AREA */
+.main{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.headerbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px;
+  border-bottom:1px solid var(--border);
+}
+
+.filters{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+.chip{
+  padding:5px 8px;
+  border:1px solid var(--border);
+  border-radius:20px;
+  font-size:12px;
+  cursor:pointer;
+}
+
+.chip.active{
+  background:var(--green);
+  color:#000;
+  border-color:var(--green);
+}
+
 #widget{
   padding:10px;
-  min-height:150px;
 }
-</style>
-</head>
 
-<body class="dark">
-
-<div class="header">
-  <div>⚽ LiveScore Smart</div>
-  <button class="btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
+</style></head><body class="dark"><div class="topbar">
+  <div class="logo">FLASH LIVE</div>
+  <div>
+    <button class="btn" onclick="toggleTheme()">🌙/☀️</button>
+  </div>
+</div><div class="container">  <!-- SIDEBAR -->  <div class="sidebar" id="leagueList"></div>  <!-- MAIN -->  <div class="main"><div class="headerbar">
+  <div class="filters">
+    <div class="chip active">Today</div>
+    <div class="chip">Live</div>
+    <div class="chip">Finished</div>
+  </div>
 </div>
 
-<div class="leagues" id="leagueList"></div>
 <div id="widget"></div>
 
-<script>
-/* SMART LEAGUES WITH WEIGHTS */
-const LEAGUES = [
-  {id:2,name:"UCL",weight:99},
-  {id:39,name:"EPL",weight:100},
-  {id:140,name:"La Liga",weight:95},
-
-  {id:78,name:"Bundesliga",weight:88},
-  {id:135,name:"Serie A",weight:90},
-  {id:61,name:"Ligue 1",weight:85},
-
-  {id:848,name:"Conference",weight:80},
-
-  // 🇿🇦 Betway Premiership (South Africa)
-  {id:288,name:"Betway SA",weight:65},
-
-  {id:197,name:"Greece",weight:60},
-  {id:270,name:"Cyprus",weight:55},
-
-  {id:307,name:"Saudi",weight:75}
+  </div></div><script>
+const LEAGUES=[
+  {id:2,name:"UCL"},{id:39,name:"EPL"},{id:140,name:"La Liga"},
+  {id:78,name:"Bundesliga"},{id:135,name:"Serie A"},{id:61,name:"Ligue 1"},
+  {id:197,name:"Greece"},{id:270,name:"Cyprus"},{id:288,name:"Betway SA"},
+  {id:307,name:"Saudi"}
 ];
 
-let currentLeague = null;
-let currentTheme = "dark";
-let currentDate = new Date().toISOString().split('T')[0];
+let currentLeague=null;
+let theme="dark";
+let date=new Date().toISOString().split('T')[0];
 
-/* STORAGE */
-function safeStorage(){
-  try{
-    localStorage.setItem('_t','1');
-    localStorage.removeItem('_t');
-    return true;
-  }catch(e){return false;}
-}
-
-function getFavs(){
-  if(!safeStorage()) return [];
-  try{return JSON.parse(localStorage.getItem('favs'))||[]}catch(e){return [];}
-}
-
-function setFavs(favs){
-  if(!safeStorage()) return;
-  localStorage.setItem('favs', JSON.stringify(favs));
-}
-
-/* SMART SORT */
-function sortLeagues(list){
-  const favs = getFavs();
-
-  return [...list].sort((a,b)=>{
-    const aFav = favs.includes(a.id) ? 1000 : 0;
-    const bFav = favs.includes(b.id) ? 1000 : 0;
-
-    return (bFav + b.weight) - (aFav + a.weight);
-  });
-}
-
-/* THEME */
 function toggleTheme(){
-  currentTheme = (currentTheme === "dark") ? "light" : "dark";
-  document.body.className = currentTheme;
-
-  document.getElementById("themeBtn").innerText =
-    currentTheme === "dark" ? "🌙 Dark" : "☀️ Light";
-
+  theme=(theme==="dark")?"light":"dark";
+  document.body.className=theme;
   loadWidget(currentLeague);
 }
 
-/* RENDER LEAGUES */
 function renderLeagues(){
-  const container = document.getElementById('leagueList');
-  container.innerHTML = '';
+  const c=document.getElementById("leagueList");
+  c.innerHTML="";
 
-  const list = sortLeagues(LEAGUES);
+  LEAGUES.forEach(l=>{
+    const d=document.createElement("div");
+    d.className="league"+(currentLeague===l.id?" active":"");
 
-  list.forEach(lg=>{
-    const div = document.createElement('div');
-    div.className = 'league' + (lg.id === currentLeague ? ' active':'');
-
-    div.innerHTML = `
-      <img src="https://media.api-sports.io/football/leagues/${lg.id}.png"
-      style="width:18px;height:18px" onerror="this.style.opacity=.3">
-      ${lg.name}
+    d.innerHTML=`
+      <img src="https://media.api-sports.io/football/leagues/${l.id}.png">
+      ${l.name}
     `;
 
-    div.onclick = ()=>{
-      currentLeague = lg.id;
-      loadWidget(lg.id);
+    d.onclick=()=>{
+      currentLeague=l.id;
+      loadWidget(l.id);
       renderLeagues();
     };
 
-    container.appendChild(div);
+    c.appendChild(d);
   });
 }
 
-/* LOAD WIDGET */
-function loadWidget(leagueId){
-  const container = document.getElementById('widget');
-  container.innerHTML = '';
+function loadWidget(id){
+  const w=document.getElementById("widget");
+  w.innerHTML="";
 
-  const w = document.createElement('api-sports-widget');
-  w.setAttribute('data-type','games');
-  w.setAttribute('data-date', currentDate);
-  w.setAttribute('data-theme', currentTheme);
+  const el=document.createElement("api-sports-widget");
+  el.setAttribute("data-type","games");
+  el.setAttribute("data-date",date);
+  el.setAttribute("data-theme",theme);
 
-  if(leagueId){
-    w.setAttribute('data-league', leagueId);
-  }
+  if(id) el.setAttribute("data-league",id);
 
-  requestAnimationFrame(()=>{
-    container.appendChild(w);
-  });
+  requestAnimationFrame(()=>w.appendChild(el));
 }
 
-/* INIT */
-window.addEventListener('DOMContentLoaded', ()=>{
-  document.body.className = "dark";
+window.onload=()=>{
+  document.body.className="dark";
   renderLeagues();
   loadWidget(null);
-});
-</script>
+};
+</script><api-sports-widget data-type="config" data-sport="football" data-key="1b6cb2f77346c107941c5180d1881f77" data-theme="dark" data-refresh="30" data-show-logos="true"
 
-<!-- CONFIG -->
-<api-sports-widget
-  data-type="config"
-  data-sport="football"
-  data-key="1b6cb2f77346c107941c5180d1881f77"
-  data-theme="dark"
-  data-refresh="30"
-  data-show-logos="true"
-></api-sports-widget>
+> </api-sports-widget>
 
 </body>
 </html>
