@@ -101,49 +101,6 @@ let currentLeague=null;
 let favMode=false;
 let currentDate=new Date().toISOString().split('T')[0];
 
-// SOUND (mobile safe)
-function playGoalSound(){
-  try{
-    const ctx=new (window.AudioContext||window.webkitAudioContext)();
-    const o=ctx.createOscillator();
-    const g=ctx.createGain();
-
-    o.type="sine";
-    o.frequency.value=800;
-    g.gain.value=0.1;
-
-    o.connect(g);
-    g.connect(ctx.destination);
-
-    o.start();
-    setTimeout(()=>{
-      o.stop();
-      ctx.close();
-    },200);
-  }catch(e){
-    console.log("sound blocked");
-  }
-}
-
-// WATCH FOR GOAL CHANGE
-let lastHTML="";
-function observeGoals(){
-  const el=document.getElementById('widget');
-
-  const obs=new MutationObserver(()=>{
-    const now=el.innerText;
-
-    if(lastHTML && now!==lastHTML){
-      // simple heuristic: content changed => possible goal update
-      playGoalSound();
-    }
-
-    lastHTML=now;
-  });
-
-  obs.observe(el,{childList:true,subtree:true,characterData:true});
-}
-
 function renderLeagues(){
   const container=document.getElementById('leagueList');
   container.innerHTML='';
@@ -176,7 +133,6 @@ function loadWidget(leagueId){
 
   requestAnimationFrame(()=>{
     container.appendChild(w);
-    observeGoals();
   });
 }
 
@@ -190,7 +146,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   data-type="config"
   data-sport="football"
   data-key="1b6cb2f77346c107941c5180d1881f77"
-  data-theme="dark"
+  data-theme="light"
   data-refresh="30"
   data-show-logos="true"
 ></api-sports-widget>
