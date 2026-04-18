@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LiveScore Smart</title>
-
-<script type="module" src="https://widgets.api-sports.io/3.1.0/widgets.js"></script>
-
-<style>
+<title>LiveScore Smart</title><script type="module" src="https://widgets.api-sports.io/3.1.0/widgets.js"></script><style>
 body{
   margin:0;
   font-family:sans-serif;
@@ -75,22 +70,15 @@ body.light .league{
   padding:10px;
   min-height:150px;
 }
-</style>
-</head>
-
-<body class="dark">
-
-<div class="header">
+</style></head><body class="dark"><div class="header">
   <div>⚽ LiveScore Smart</div>
   <button class="btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
-</div>
-
-<div class="leagues" id="leagueList"></div>
-<div id="widget"></div>
-
-<script>
+</div><div class="leagues" id="leagueList"></div>
+<div id="widget"></div><script>
 /* SMART LEAGUES WITH WEIGHTS */
 const LEAGUES = [
+  {id:1,name:"World Cup 2026",weight:110},
+
   {id:2,name:"UCL",weight:99},
   {id:39,name:"EPL",weight:100},
   {id:140,name:"La Liga",weight:95},
@@ -208,17 +196,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
   renderLeagues();
   loadWidget(null);
 });
-</script>
+</script><!-- CONFIG --><api-sports-widget data-type="config" data-sport="football" data-key="1b6cb2f77346c107941c5180d1881f77" data-theme="dark" data-refresh="10" data-show-logos="true"
 
-<!-- CONFIG -->
-<api-sports-widget
-  data-type="config"
-  data-sport="football"
-  data-key="1b6cb2f77346c107941c5180d1881f77"
-  data-theme="dark"
-  data-refresh="10"
-  data-show-logos="true"
-></api-sports-widget>
+> </api-sports-widget>
 
 </body>
 </html>
