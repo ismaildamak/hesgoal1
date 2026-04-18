@@ -96,6 +96,7 @@
     .btn-reset{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;font-family:'Barlow',sans-serif;font-weight:600;font-size:.9rem;padding:9px 16px;cursor:pointer;transition:all .2s}
     .btn-reset:hover{border-color:var(--muted);color:var(--text)}
 
+    .league-block{border-bottom:1px solid var(--border)}.league-block:last-child{border-bottom:none}
     footer{text-align:center;padding:28px 20px;color:var(--muted);font-size:.78rem;border-top:1px solid var(--border);margin-top:32px}
     footer a{color:var(--green);text-decoration:none}
     @media(max-width:960px){.layout{grid-template-columns:1fr}.league-sidebar,.detail-sidebar{display:none}}
@@ -333,6 +334,14 @@
     }
 
     // Refresh widget with optional league filter
+    function makeWidget(leagueId) {
+      var w = document.createElement('api-sports-widget');
+      w.setAttribute('data-type', 'games');
+      w.setAttribute('data-date', currentDate);
+      if (leagueId) w.setAttribute('data-league', String(leagueId));
+      return w;
+    }
+
     function refreshWidget(leagueId) {
       document.getElementById('standings-content').innerHTML = '';
       document.getElementById('team-content').innerHTML = '';
@@ -340,12 +349,34 @@
       var container = document.getElementById('widget-container');
       container.innerHTML = '';
 
-      var w = document.createElement('api-sports-widget');
-      w.setAttribute('data-type', 'games');
-      w.setAttribute('data-date', currentDate);
-      if (leagueId) w.setAttribute('data-league', String(leagueId));
-      container.appendChild(w);
-      if (typeof w.connectedCallback === 'function') w.connectedCallback();
+      // If a specific league is selected (sidebar click), show just that one
+      if (leagueId) {
+        var w = makeWidget(leagueId);
+        container.appendChild(w);
+        if (typeof w.connectedCallback === 'function') w.connectedCallback();
+        return;
+      }
+
+      // Otherwise check if user has favorites selected
+      var favs = loadFavs();
+      if (favs.length > 0) {
+        // Load one widget per favorite league — this is the only way to filter
+        favs.forEach(function(fid, idx) {
+          var block = document.createElement('div');
+          block.className = 'league-block';
+          var w = makeWidget(fid);
+          block.appendChild(w);
+          container.appendChild(block);
+          setTimeout(function() {
+            if (typeof w.connectedCallback === 'function') w.connectedCallback();
+          }, idx * 300);
+        });
+      } else {
+        // No filter — load all games in one call
+        var w = makeWidget(null);
+        container.appendChild(w);
+        if (typeof w.connectedCallback === 'function') w.connectedCallback();
+      }
     }
 
     // Update sidebar active state + filter badge
@@ -372,15 +403,9 @@
       document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentDate = btn.getAttribute('data-date');
-
-      var favs = loadFavs();
-      // If viewing a single league (sidebar click), keep that
-      var activeRow = document.querySelector('.fav-row.active-league');
-      if (activeRow) {
-        refreshWidget(parseInt(activeRow.getAttribute('data-id'), 10));
-      } else {
-        refreshWidget(null);
-      }
+      // Clear any single-league selection, reload with favs if set
+      document.querySelectorAll('.fav-row').forEach(r => r.classList.remove('active-league'));
+      refreshWidget(null);
     }
 
     // Sidebar league click — show only that league
