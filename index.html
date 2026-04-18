@@ -340,25 +340,46 @@
       var favs = loadFavs();
       var ids = leagueId ? [leagueId] : (favs.length > 0 ? favs : []);
 
-      // Build HTML string with widget tags
-      var html = '';
+      // Wipe container
+      var container = document.getElementById('widget-container');
+      container.innerHTML = '';
+
       if (ids.length > 0) {
         ids.forEach(function(fid) {
-          html += '<div class="league-block"><api-sports-widget data-type="games" data-league="' + fid + '" data-date="' + currentDate + '"></api-sports-widget></div>';
+          var block = document.createElement('div');
+          block.className = 'league-block';
+          container.appendChild(block);
+
+          // Create widget and append to live DOM node
+          var w = document.createElement('api-sports-widget');
+          w.setAttribute('data-type', 'games');
+          w.setAttribute('data-league', String(fid));
+          w.setAttribute('data-date', currentDate);
+          block.appendChild(w);
+
+          // Wait for custom element to be defined then call connectedCallback
+          customElements.whenDefined('api-sports-widget').then(function() {
+            customElements.upgrade(w);
+            if (typeof w.connectedCallback === 'function') {
+              w.connectedCallback();
+            }
+          });
         });
       } else {
-        html = '<api-sports-widget data-type="games" data-date="' + currentDate + '"></api-sports-widget>';
-      }
+        var w = document.createElement('api-sports-widget');
+        w.setAttribute('data-type', 'games');
+        w.setAttribute('data-date', currentDate);
+        container.appendChild(w);
 
-      // Detach old container, create brand new one, re-attach
-      // This is the ONLY reliable way to trigger custom element upgrade on all browsers
-      var oldEl = document.getElementById('widget-container');
-      var parent = oldEl.parentNode;
-      var newEl = document.createElement('div');
-      newEl.id = 'widget-container';
-      parent.insertBefore(newEl, oldEl);
-      parent.removeChild(oldEl);
-      newEl.innerHTML = html;
+        customElements.whenDefined('api-sports-widget').then(function() {
+          customElements.upgrade(w);
+          if (typeof w.connectedCallback === 'function') {
+            w.connectedCallback();
+          }
+        });
+      }
+    }
+
     }
 
 
