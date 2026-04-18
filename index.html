@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LiveScore</title>
+<title>LiveScore Smart</title>
 
 <script type="module" src="https://widgets.api-sports.io/3.1.0/widgets.js"></script>
 
@@ -19,7 +19,6 @@ body.dark{
   background:#0e0e0e;
   color:#fff;
 }
-
 body.light{
   background:#f5f5f5;
   color:#111;
@@ -52,16 +51,18 @@ body.light{
 
 .league{
   padding:6px 10px;
-  background:#1a1a1a;
   border-radius:8px;
   white-space:nowrap;
   cursor:pointer;
   font-size:13px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:#1a1a1a;
 }
 
 body.light .league{
   background:#ddd;
-  color:#111;
 }
 
 .league.active{
@@ -80,32 +81,71 @@ body.light .league{
 <body class="dark">
 
 <div class="header">
-  <div>⚽ LiveScore</div>
-
-  <div>
-    <button class="btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
-  </div>
+  <div>⚽ LiveScore Smart</div>
+  <button class="btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
 </div>
 
 <div class="leagues" id="leagueList"></div>
 <div id="widget"></div>
 
 <script>
+/* SMART LEAGUES WITH WEIGHTS */
 const LEAGUES = [
-  {id:39,name:"EPL"},
-  {id:140,name:"La Liga"},
-  {id:135,name:"Serie A"},
-  {id:61,name:"Ligue 1"},
-  {id:197,name:"Greece"},
-  {id:270,name:"Cyprus"},
-  {id:307,name:"Saudi"}
+  {id:2,name:"UCL",weight:99},
+  {id:39,name:"EPL",weight:100},
+  {id:140,name:"La Liga",weight:95},
+
+  {id:78,name:"Bundesliga",weight:88},
+  {id:135,name:"Serie A",weight:90},
+  {id:61,name:"Ligue 1",weight:85},
+
+  {id:848,name:"Conference",weight:80},
+
+  // 🇿🇦 Betway Premiership (South Africa)
+  {id:288,name:"Betway SA",weight:65},
+
+  {id:197,name:"Greece",weight:60},
+  {id:270,name:"Cyprus",weight:55},
+
+  {id:307,name:"Saudi",weight:75}
 ];
 
 let currentLeague = null;
 let currentTheme = "dark";
 let currentDate = new Date().toISOString().split('T')[0];
 
-/* THEME TOGGLE */
+/* STORAGE */
+function safeStorage(){
+  try{
+    localStorage.setItem('_t','1');
+    localStorage.removeItem('_t');
+    return true;
+  }catch(e){return false;}
+}
+
+function getFavs(){
+  if(!safeStorage()) return [];
+  try{return JSON.parse(localStorage.getItem('favs'))||[]}catch(e){return [];}
+}
+
+function setFavs(favs){
+  if(!safeStorage()) return;
+  localStorage.setItem('favs', JSON.stringify(favs));
+}
+
+/* SMART SORT */
+function sortLeagues(list){
+  const favs = getFavs();
+
+  return [...list].sort((a,b)=>{
+    const aFav = favs.includes(a.id) ? 1000 : 0;
+    const bFav = favs.includes(b.id) ? 1000 : 0;
+
+    return (bFav + b.weight) - (aFav + a.weight);
+  });
+}
+
+/* THEME */
 function toggleTheme(){
   currentTheme = (currentTheme === "dark") ? "light" : "dark";
   document.body.className = currentTheme;
@@ -121,11 +161,17 @@ function renderLeagues(){
   const container = document.getElementById('leagueList');
   container.innerHTML = '';
 
-  LEAGUES.forEach(lg=>{
+  const list = sortLeagues(LEAGUES);
+
+  list.forEach(lg=>{
     const div = document.createElement('div');
     div.className = 'league' + (lg.id === currentLeague ? ' active':'');
 
-    div.innerHTML = lg.name;
+    div.innerHTML = `
+      <img src="https://media.api-sports.io/football/leagues/${lg.id}.png"
+      style="width:18px;height:18px" onerror="this.style.opacity=.3">
+      ${lg.name}
+    `;
 
     div.onclick = ()=>{
       currentLeague = lg.id;
