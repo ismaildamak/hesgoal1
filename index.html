@@ -348,33 +348,48 @@
     }
 
     // Refresh widget with optional league filter
-    function buildWidgetHTML(leagues) {
-      if (leagues) {
-        var html = '';
-        leagues.forEach(function(fid) {
-          html += '<div class="league-block"><api-sports-widget data-type="games" data-league="' + fid + '" data-date="' + currentDate + '"></api-sports-widget></div>';
-        });
-        return html;
-      }
-      return '<api-sports-widget data-type="games" data-date="' + currentDate + '"></api-sports-widget>';
-    }
-
     function refreshWidget(leagueId) {
       document.getElementById('standings-content').innerHTML = '';
       document.getElementById('team-content').innerHTML = '';
 
       var favs = loadFavs();
       var leagues = leagueId ? [leagueId] : (favs.length > 0 ? favs : null);
-      var html = buildWidgetHTML(leagues);
 
-      // Remove container from DOM, replace with a fresh clone, re-insert
-      // This forces the browser to re-parse and upgrade all custom elements
-      var old = document.getElementById('widget-container');
-      var parent = old.parentNode;
-      var fresh = document.createElement('div');
-      fresh.id = 'widget-container';
-      fresh.innerHTML = html;
-      parent.replaceChild(fresh, old);
+      // Build list of league IDs to load
+      var ids = leagues ? leagues : [];
+
+      // Replace container with a fresh one to reset state
+      var oldContainer = document.getElementById('widget-container');
+      var parent = oldContainer.parentNode;
+      var newContainer = document.createElement('div');
+      newContainer.id = 'widget-container';
+      parent.replaceChild(newContainer, oldContainer);
+
+      if (ids.length > 0) {
+        // Create each widget element individually and append —
+        // this lets customElements.upgrade() work per element
+        ids.forEach(function(fid) {
+          var block = document.createElement('div');
+          block.className = 'league-block';
+          var w = document.createElement('api-sports-widget');
+          w.setAttribute('data-type', 'games');
+          w.setAttribute('data-league', String(fid));
+          w.setAttribute('data-date', currentDate);
+          block.appendChild(w);
+          newContainer.appendChild(block);
+          // Force upgrade immediately after inserting into live DOM
+          customElements.upgrade(w);
+          if (typeof w.connectedCallback === 'function') w.connectedCallback();
+        });
+      } else {
+        // All games — single widget
+        var w = document.createElement('api-sports-widget');
+        w.setAttribute('data-type', 'games');
+        w.setAttribute('data-date', currentDate);
+        newContainer.appendChild(w);
+        customElements.upgrade(w);
+        if (typeof w.connectedCallback === 'function') w.connectedCallback();
+      }
     }
 
     // Update sidebar active state + filter badge
