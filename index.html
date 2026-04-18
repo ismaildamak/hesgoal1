@@ -334,12 +334,22 @@
     }
 
     // Refresh widget with optional league filter
-    function makeWidget(leagueId) {
+    // Build and inject a widget by briefly removing it from DOM
+    // then re-inserting — this triggers the custom element lifecycle reliably
+    function injectWidget(container, leagueId) {
       var w = document.createElement('api-sports-widget');
       w.setAttribute('data-type', 'games');
       w.setAttribute('data-date', currentDate);
       if (leagueId) w.setAttribute('data-league', String(leagueId));
-      return w;
+
+      // Append first so it upgrades
+      container.appendChild(w);
+
+      // Force re-registration: remove then re-add after a tick
+      setTimeout(function() {
+        container.removeChild(w);
+        container.appendChild(w);
+      }, 50);
     }
 
     function refreshWidget(leagueId) {
@@ -349,33 +359,41 @@
       var container = document.getElementById('widget-container');
       container.innerHTML = '';
 
-      // If a specific league is selected (sidebar click), show just that one
+      // Specific league clicked in sidebar
       if (leagueId) {
-        var w = makeWidget(leagueId);
-        container.appendChild(w);
-        if (typeof w.connectedCallback === 'function') w.connectedCallback();
+        injectWidget(container, leagueId);
         return;
       }
 
-      // Otherwise check if user has favorites selected
+      // Check saved favorites
       var favs = loadFavs();
+
       if (favs.length > 0) {
-        // Load one widget per favorite league — this is the only way to filter
+        // One widget per favorite, staggered so each has time to register
         favs.forEach(function(fid, idx) {
-          var block = document.createElement('div');
-          block.className = 'league-block';
-          var w = makeWidget(fid);
-          block.appendChild(w);
-          container.appendChild(block);
           setTimeout(function() {
-            if (typeof w.connectedCallback === 'function') w.connectedCallback();
-          }, idx * 300);
+            var block = document.createElement('div');
+            block.className = 'league-block';
+            container.appendChild(block);
+
+            var w = document.createElement('api-sports-widget');
+            w.setAttribute('data-type', 'games');
+            w.setAttribute('data-date', currentDate);
+            w.setAttribute('data-league', String(fid));
+            block.appendChild(w);
+
+            // Force lifecycle by remove+re-add
+            setTimeout(function() {
+              if (block.contains(w)) {
+                block.removeChild(w);
+                block.appendChild(w);
+              }
+            }, 80);
+          }, idx * 500); // 500ms gap between each widget
         });
       } else {
-        // No filter — load all games in one call
-        var w = makeWidget(null);
-        container.appendChild(w);
-        if (typeof w.connectedCallback === 'function') w.connectedCallback();
+        // No favorites — load everything in one call
+        injectWidget(container, null);
       }
     }
 
