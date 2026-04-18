@@ -86,6 +86,11 @@ const LEAGUES = [
   {id:39,name:"EPL"},
   {id:40,name:"Championship"},
   {id:140,name:"La Liga"},
+
+  // ✅ NEW: South Africa Betway Premiership
+  {id:288,name:"Betway SA"},
+
+  {id:307,name:"Saudi"},
   {id:78,name:"Bundesliga"},
   {id:135,name:"Serie A"},
   {id:61,name:"Ligue 1"},
@@ -93,8 +98,7 @@ const LEAGUES = [
   {id:94,name:"Portugal"},
   {id:113,name:"Sweden"},
   {id:197,name:"Greece"},
-  {id:270,name:"Cyprus"},
-  {id:307,name:"Saudi"}
+  {id:270,name:"Cyprus"}
 ];
 
 let currentLeague = null;
@@ -133,8 +137,7 @@ function renderLeagues(){
     div.className = 'league' + (lg.id === currentLeague ? ' active':'');
 
     div.innerHTML = `
-      <img src="https://media.api-sports.io/football/leagues/${lg.id}.png" 
-           onerror="this.style.opacity=.3">
+      <img src="https://media.api-sports.io/football/leagues/${lg.id}.png" onerror="this.style.opacity=.3">
       ${lg.name}
     `;
 
@@ -211,6 +214,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
   data-key="1b6cb2f77346c107941c5180d1881f77"
   data-theme="dark"
   data-refresh="30"
+  data-show-logos="true"
 ></api-sports-widget>
 
 </body>
