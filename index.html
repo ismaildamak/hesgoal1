@@ -1,27 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LiveScore</title>
-
-<script type="module" src="https://widgets.api-sports.io/3.1.0/widgets.js"></script>
-
-<style>
+<title>LiveScore</title><script type="module" src="https://widgets.api-sports.io/3.1.0/widgets.js"></script><style>
 body{
   margin:0;
   font-family:sans-serif;
-  transition:0.25s;
-}
-
-body.dark{
   background:#0e0e0e;
   color:#fff;
-}
-
-body.light{
-  background:#f5f5f5;
-  color:#111;
 }
 
 .header{
@@ -32,17 +18,13 @@ body.light{
   border-bottom:1px solid #222;
 }
 
-body.light .header{
-  border-bottom:1px solid #ddd;
-}
-
 .title{font-weight:bold}
 
 .btn{
-  padding:6px 10px;
+  padding:6px 12px;
   border:1px solid #333;
   background:none;
-  color:inherit;
+  color:#fff;
   border-radius:6px;
   cursor:pointer;
 }
@@ -66,11 +48,6 @@ body.light .header{
   font-size:13px;
 }
 
-body.light .league{
-  background:#ddd;
-  color:#111;
-}
-
 .league img{
   width:18px;
   height:18px;
@@ -86,23 +63,14 @@ body.light .league{
   padding:10px;
   min-height:150px;
 }
-</style>
-</head>
-
-<body class="dark">
-
-<div class="header">
+</style></head><body><div class="header">
   <div class="title">⚽ LiveScore</div>
-  <div>
-    <button class="btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
-    <button class="btn" onclick="toggleFavMode()">Favorites</button>
-  </div>
-</div>
-
-<div class="leagues" id="leagueList"></div>
-<div id="widget"></div>
-
-<script>
+  <button class="btn" onclick="toggleFavMode()">Favorites</button>
+</div><div class="leagues" id="leagueList"></div>
+<div id="widget"></div><!-- 🔊 FLASHSCORE-STYLE SOUND SYSTEM --><audio id="goalSound" preload="auto">
+  <source src="https://actions.google.com/sounds/v1/sports/cheering_medium_short.ogg" type="audio/ogg">
+  <source src="https://actions.google.com/sounds/v1/sports/cheering_medium_short.mp3" type="audio/mpeg">
+</audio><script>
 const LEAGUES = [
   {id:39,name:"EPL"},
   {id:40,name:"Championship"},
@@ -121,16 +89,29 @@ const LEAGUES = [
 let currentLeague=null;
 let favMode=false;
 let currentDate=new Date().toISOString().split('T')[0];
-let theme="dark";
 
-function toggleTheme(){
-  theme = theme === "dark" ? "light" : "dark";
-  document.body.className = theme;
+/* 🔓 MOBILE AUDIO UNLOCK FIX */
+let audioUnlocked=false;
+function unlockAudio(){
+  if(audioUnlocked) return;
+  const a=document.getElementById('goalSound');
+  a.play().then(()=>{
+    a.pause();
+    a.currentTime=0;
+    audioUnlocked=true;
+  }).catch(()=>{});
+}
 
-  document.getElementById("themeBtn").innerText =
-    theme === "dark" ? "🌙 Dark" : "☀️ Light";
+document.addEventListener('touchstart',unlockAudio,{once:true});
+document.addEventListener('click',unlockAudio,{once:true});
 
-  loadWidget(currentLeague);
+/* 🔊 PLAY GOAL SOUND */
+function playGoalSound(){
+  try{
+    const a=document.getElementById('goalSound');
+    a.currentTime=0;
+    a.play();
+  }catch(e){console.log('sound blocked');}
 }
 
 function renderLeagues(){
@@ -160,30 +141,38 @@ function loadWidget(leagueId){
   const w=document.createElement('api-sports-widget');
   w.setAttribute('data-type','games');
   w.setAttribute('data-date',currentDate);
-  w.setAttribute('data-theme',theme);
 
   if(leagueId) w.setAttribute('data-league',leagueId);
 
   requestAnimationFrame(()=>{
     container.appendChild(w);
+    observeChanges();
   });
 }
 
+/* ⚽ SIMPLE CHANGE DETECTOR (for goal trigger hook) */
+let lastState='';
+function observeChanges(){
+  const el=document.getElementById('widget');
+
+  const obs=new MutationObserver(()=>{
+    const now=el.innerText;
+    if(lastState && now!==lastState){
+      playGoalSound();
+    }
+    lastState=now;
+  });
+
+  obs.observe(el,{childList:true,subtree:true,characterData:true});
+}
+
 window.addEventListener('DOMContentLoaded',()=>{
-  document.body.className="dark";
   renderLeagues();
   loadWidget(null);
 });
-</script>
+</script><api-sports-widget data-type="config" data-sport="football" data-key="1b6cb2f77346c107941c5180d1881f77" data-theme="dark" data-refresh="30" data-show-logos="true"
 
-<api-sports-widget
-  data-type="config"
-  data-sport="football"
-  data-key="1b6cb2f77346c107941c5180d1881f77"
-  data-theme="dark"
-  data-refresh="10"
-  data-show-logos="true"
-></api-sports-widget>
+> </api-sports-widget>
 
 </body>
 </html>
