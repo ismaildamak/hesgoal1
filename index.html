@@ -280,9 +280,7 @@
         <div class="main-panel-title"><span class="ico">&#x26BD;</span> Fixtures &amp; Results</div>
         <span class="filter-badge" id="filter-badge">All Leagues</span>
       </div>
-      <div id="widget-container">
-        <api-sports-widget data-type="games" data-date="2026-04-18"></api-sports-widget>
-      </div>
+      <div id="widget-container"></div>
     </div>
 
     <!-- RIGHT: Dynamic detail -->
@@ -350,48 +348,25 @@
     }
 
     // Refresh widget with optional league filter
-    function makeWidget(leagueId) {
-      var w = document.createElement('api-sports-widget');
-      w.setAttribute('data-type', 'games');
-      w.setAttribute('data-date', currentDate);
-      if (leagueId) w.setAttribute('data-league', String(leagueId));
-      return w;
-    }
-
     function refreshWidget(leagueId) {
       document.getElementById('standings-content').innerHTML = '';
       document.getElementById('team-content').innerHTML = '';
 
       var container = document.getElementById('widget-container');
-      container.innerHTML = '';
-
-      // If a specific league is selected (sidebar click), show just that one
-      if (leagueId) {
-        var w = makeWidget(leagueId);
-        container.appendChild(w);
-        if (typeof w.connectedCallback === 'function') w.connectedCallback();
-        return;
-      }
-
-      // Otherwise check if user has favorites selected
       var favs = loadFavs();
-      if (favs.length > 0) {
-        // Load one widget per favorite league — this is the only way to filter
-        favs.forEach(function(fid, idx) {
-          var block = document.createElement('div');
-          block.className = 'league-block';
-          var w = makeWidget(fid);
-          block.appendChild(w);
-          container.appendChild(block);
-          setTimeout(function() {
-            if (typeof w.connectedCallback === 'function') w.connectedCallback();
-          }, idx * 300);
+      var leagues = leagueId ? [leagueId] : (favs.length > 0 ? favs : null);
+
+      if (leagues) {
+        // Write widget tags directly as HTML — this is the only reliable way
+        // to trigger the custom element lifecycle (same as static HTML tags)
+        var html = '';
+        leagues.forEach(function(fid) {
+          html += '<div class="league-block"><api-sports-widget data-type="games" data-league="' + fid + '" data-date="' + currentDate + '"></api-sports-widget></div>';
         });
+        container.innerHTML = html;
       } else {
-        // No filter — load all games in one call
-        var w = makeWidget(null);
-        container.appendChild(w);
-        if (typeof w.connectedCallback === 'function') w.connectedCallback();
+        // No filter — one widget, all games
+        container.innerHTML = '<api-sports-widget data-type="games" data-date="' + currentDate + '"></api-sports-widget>';
       }
     }
 
@@ -419,7 +394,6 @@
       document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentDate = btn.getAttribute('data-date');
-      // Clear any single-league selection, reload with favs if set
       document.querySelectorAll('.fav-row').forEach(r => r.classList.remove('active-league'));
       refreshWidget(null);
     }
@@ -506,6 +480,7 @@
     window.addEventListener('DOMContentLoaded', function() {
       var favs = loadFavs();
       updateSidebar(favs);
+      refreshWidget(null);
     });
   </script>
 
