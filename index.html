@@ -1,497 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LiveScore</title>
-  <script type="module" crossorigin src="https://widgets.api-sports.io/3.1.0/widgets.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --bg:#0e0e0e;--surface:#171717;--surface2:#1e1e1e;
-      --border:#262626;--green:#00d25b;--text:#f0f0f0;--muted:#666;
-      --star:#f5c518;
-    }
-    body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LiveScore</title>
 
-    /* TOPBAR */
-    .topbar{background:#090909;border-bottom:1px solid var(--border);height:54px;display:flex;align-items:center;position:sticky;top:0;z-index:200}
-    .topbar-inner{max-width:1140px;margin:0 auto;width:100%;padding:0 20px;display:flex;align-items:center;gap:16px}
-    .logo{font-family:'Barlow Condensed',sans-serif;font-size:1.55rem;font-weight:800;color:var(--green);letter-spacing:1px;text-decoration:none;display:flex;align-items:center;gap:7px}
-    .logo-dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 1.4s infinite}
-    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.8)}}
-    .live-chip{font-size:.65rem;font-weight:700;letter-spacing:2px;color:#ff4444;border:1px solid rgba(255,68,68,.3);padding:3px 8px;border-radius:4px;background:rgba(255,68,68,.08)}
-    .ms-auto{margin-left:auto}
-    .fav-toggle-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Barlow',sans-serif;font-size:.8rem;font-weight:600;padding:6px 14px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
-    .fav-toggle-btn:hover{border-color:var(--star);color:var(--star)}
-    .fav-toggle-btn .star{color:var(--star);font-size:1rem}
+<script type="module" src="https://widgets.api-sports.io/3.1.0/widgets.js"></script>
 
-    /* DATE NAV */
-    .date-nav{background:var(--surface);border-bottom:1px solid var(--border)}
-    .date-nav-inner{max-width:1140px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:2px}
-    .date-btn{background:none;border:none;border-bottom:3px solid transparent;color:var(--muted);font-family:'Barlow',sans-serif;font-size:.85rem;font-weight:600;padding:12px 16px;cursor:pointer;transition:all .2s;white-space:nowrap}
-    .date-btn:hover{color:var(--text)}
-    .date-btn.active{color:var(--green);border-bottom-color:var(--green)}
+<style>
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:#0e0e0e;
+  color:#fff;
+}
 
-    /* LAYOUT */
-    .layout{max-width:1140px;margin:20px auto;padding:0 20px;display:grid;grid-template-columns:240px 1fr 300px;gap:18px;align-items:start}
+/* HEADER */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px;
+  border-bottom:1px solid #222;
+}
+.title{font-weight:bold}
+.btn{
+  padding:6px 12px;
+  border:1px solid #333;
+  background:none;
+  color:#fff;
+  border-radius:6px;
+}
 
-    /* LEAGUE SIDEBAR */
-    .league-sidebar{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:sticky;top:74px}
-    .sidebar-header{padding:12px 14px;border-bottom:1px solid var(--border);font-family:'Barlow Condensed',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;justify-content:space-between}
-    .sidebar-header-right{font-size:.7rem;color:var(--muted);font-weight:500;cursor:pointer}
-    .sidebar-header-right:hover{color:var(--green)}
-    .fav-row{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;transition:background .15s;border-left:3px solid transparent}
-    .fav-row:hover{background:rgba(255,255,255,.04)}
-    .fav-row.active-league{background:rgba(0,210,91,.06);border-left-color:var(--green)}
-    .fav-logo{width:22px;height:22px;object-fit:contain;flex-shrink:0}
-    .fav-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
-    .fav-name{font-size:.78rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .fav-row.active-league .fav-name{color:var(--green)}
-    .fav-country{font-size:.65rem;color:var(--muted)}
-    .fav-star{background:none;border:none;font-size:1rem;cursor:pointer;padding:2px 4px;color:var(--muted);transition:all .2s;flex-shrink:0;line-height:1}
-    .fav-star:hover{transform:scale(1.2)}
-    .fav-star.starred{color:var(--star)}
-    .fav-row.hidden-league{display:none}
+/* LEAGUES */
+.leagues{
+  display:flex;
+  overflow-x:auto;
+  gap:8px;
+  padding:10px;
+}
+.league{
+  padding:6px 12px;
+  background:#1a1a1a;
+  border-radius:6px;
+  white-space:nowrap;
+  cursor:pointer;
+  font-size:14px;
+}
+.league.active{
+  background:#00d25b;
+  color:#000;
+}
 
-    /* MAIN PANEL */
-    .main-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-    .main-panel-header{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);background:rgba(0,210,91,.03)}
-    .main-panel-title{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text);display:flex;align-items:center;gap:8px}
-    .main-panel-title .ico{color:var(--green)}
-    .filter-badge{font-size:.68rem;background:rgba(0,210,91,.15);color:var(--green);border:1px solid rgba(0,210,91,.3);padding:2px 8px;border-radius:12px;font-weight:600}
-    #widget-container{min-height:160px}
-
-    /* DETAIL SIDEBAR */
-    .detail-sidebar{display:flex;flex-direction:column;gap:14px;position:sticky;top:74px}
-    .detail-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-    #standings-content:empty,#team-content:empty{display:none}
-    .detail-panel:has(>div:empty){display:none}
-
-    /* FAVORITES MODAL */
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center}
-    .modal-overlay.open{display:flex}
-    .modal{background:var(--surface2);border:1px solid var(--border);border-radius:14px;width:420px;max-width:95vw;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;animation:slideUp .25s ease}
-    @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    .modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-    .modal-title{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:.5px}
-    .modal-close{background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px}
-    .modal-close:hover{color:var(--text);background:rgba(255,255,255,.06)}
-    .modal-sub{padding:10px 20px;font-size:.78rem;color:var(--muted);border-bottom:1px solid var(--border);background:rgba(0,0,0,.2)}
-    .modal-body{overflow-y:auto;flex:1}
-    .modal-league-row{display:flex;align-items:center;gap:12px;padding:11px 20px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .15s}
-    .modal-league-row:hover{background:rgba(255,255,255,.04)}
-    .modal-league-row:last-child{border-bottom:none}
-    .modal-logo{width:28px;height:28px;object-fit:contain}
-    .modal-info{flex:1}
-    .modal-lname{font-size:.88rem;font-weight:600}
-    .modal-lcountry{font-size:.7rem;color:var(--muted)}
-    .modal-check{width:20px;height:20px;border-radius:5px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:.75rem}
-    .modal-check.checked{background:var(--green);border-color:var(--green);color:#000}
-    .modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
-    .btn-apply{background:var(--green);color:#000;border:none;border-radius:8px;font-family:'Barlow',sans-serif;font-weight:700;font-size:.9rem;padding:9px 24px;cursor:pointer;transition:opacity .2s}
-    .btn-apply:hover{opacity:.85}
-    .btn-reset{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;font-family:'Barlow',sans-serif;font-weight:600;font-size:.9rem;padding:9px 16px;cursor:pointer;transition:all .2s}
-    .btn-reset:hover{border-color:var(--muted);color:var(--text)}
-
-    .league-block{border-bottom:1px solid var(--border)}.league-block:last-child{border-bottom:none}
-    footer{text-align:center;padding:28px 20px;color:var(--muted);font-size:.78rem;border-top:1px solid var(--border);margin-top:32px}
-    footer a{color:var(--green);text-decoration:none}
-    @media(max-width:960px){.layout{grid-template-columns:1fr}.league-sidebar,.detail-sidebar{display:none}}
-  </style>
+/* WIDGET */
+#widget{
+  padding:10px;
+  min-height:150px;
+}
+</style>
 </head>
+
 <body>
 
-  <!-- TOPBAR -->
-  <div class="topbar">
-    <div class="topbar-inner">
-      <a class="logo" href="/"><span class="logo-dot"></span>LIVESCORE</a>
-      <span class="live-chip">LIVE</span>
-      <div class="ms-auto">
-        <button class="fav-toggle-btn" onclick="openModal()">
-          <span class="star">&#9733;</span> My Leagues
-        </button>
-      </div>
-    </div>
-  </div>
+<div class="header">
+  <div class="title">⚽ LiveScore</div>
+  <button class="btn" onclick="toggleFavMode()">Favorites</button>
+</div>
 
-  <!-- DATE NAV -->
-  <div class="date-nav">
-    <div class="date-nav-inner">
-      <button class="date-btn" data-date="2026-04-17" onclick="switchDate(this)">Fri, 17 Apr</button>
-      <button class="date-btn active" data-date="2026-04-18" onclick="switchDate(this)">Today &mdash; Sat, 18 Apr</button>
-      <button class="date-btn" data-date="2026-04-19" onclick="switchDate(this)">Tomorrow &mdash; Sun, 19 Apr</button>
-    </div>
-  </div>
+<div class="leagues" id="leagueList"></div>
 
-  <!-- LAYOUT -->
-  <div class="layout">
+<div id="widget"></div>
 
-    <!-- LEFT: League list -->
-    <div class="league-sidebar">
-      <div class="sidebar-header">
-        <span>Leagues</span>
-        <span class="sidebar-header-right" onclick="openModal()">&#9733; Edit</span>
-      </div>
-      
-          <div class="fav-row" data-id="2">
-            <img src="https://media.api-sports.io/football/leagues/2.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">UEFA Champions League</span>
-              <span class="fav-country">Europe</span>
-            </span>
-            <button class="fav-star" data-id="2" title="Favourite">&#9733;</button>
-          </div>
-          <div class="fav-row" data-id="3">
-            <img src="https://media.api-sports.io/football/leagues/3.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">UEFA Europa League</span>
-              <span class="fav-country">Europe</span>
-            </span>
-            <button class="fav-star" data-id="3" title="Favourite">&#9733;</button>
-          </div>
-          <div class="fav-row" data-id="848">
-            <img src="https://media.api-sports.io/football/leagues/848.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">Conference League</span>
-              <span class="fav-country">Europe</span>
-            </span>
-            <button class="fav-star" data-id="848" title="Favourite">&#9733;</button>
-          </div>
-          <div class="fav-row" data-id="39">
-            <img src="https://media.api-sports.io/football/leagues/39.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">Premier League</span>
-              <span class="fav-country">England</span>
-            </span>
-            <button class="fav-star" data-id="39" title="Favourite">&#9733;</button>
-          </div>
-          <div class="fav-row" data-id="40">
-            <img src="https://media.api-sports.io/football/leagues/40.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">Championship</span>
-              <span class="fav-country">England</span>
-            </span>
-            <button class="fav-star" data-id="40" title="Favourite">&#9733;</button>
-          </div>
-          <div class="fav-row" data-id="140">
-            <img src="https://media.api-sports.io/football/leagues/140.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">La Liga</span>
-              <span class="fav-country">Spain</span>
-            </span>
-            <button class="fav-star" data-id="140" title="Favourite">&#9733;</button>
-          </div>
-          <div class="fav-row" data-id="78">
-            <img src="https://media.api-sports.io/football/leagues/78.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">Bundesliga</span>
-              <span class="fav-country">Germany</span>
-            </span>
-            <button class="fav-star" data-id="78" title="Favourite">&#9733;</button>
-          </div>
-          <div class="fav-row" data-id="135">
-            <img src="https://media.api-sports.io/football/leagues/135.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">Serie A</span>
-              <span class="fav-country">Italy</span>
-            </span>
-            <button class="fav-star" data-id="135" title="Favourite">&#9733;</button>
-          </div>
-          <div class="fav-row" data-id="61">
-            <img src="https://media.api-sports.io/football/leagues/61.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">Ligue 1</span>
-              <span class="fav-country">France</span>
-            </span>
-            <button class="fav-star" data-id="61" title="Favourite">&#9733;</button>
-          </div>
-          <div class="fav-row" data-id="88">
-            <img src="https://media.api-sports.io/football/leagues/88.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">Eredivisie</span>
-              <span class="fav-country">Netherlands</span>
-            </span>
-            <button class="fav-star" data-id="88" title="Favourite">&#9733;</button>
-          </div>
-          <div class="fav-row" data-id="94">
-            <img src="https://media.api-sports.io/football/leagues/94.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">Primeira Liga</span>
-              <span class="fav-country">Portugal</span>
-            </span>
-            <button class="fav-star" data-id="94" title="Favourite">&#9733;</button>
-          </div>
-          <div class="fav-row" data-id="113">
-            <img src="https://media.api-sports.io/football/leagues/113.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">Allsvenskan</span>
-              <span class="fav-country">Sweden</span>
-            </span>
-            <button class="fav-star" data-id="113" title="Favourite">&#9733;</button>
-          </div>
-          <div class="fav-row" data-id="197">
-            <img src="https://media.api-sports.io/football/leagues/197.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">Super League</span>
-              <span class="fav-country">Greece</span>
-            </span>
-            <button class="fav-star" data-id="197" title="Favourite">&#9733;</button>
-          </div>
-          <div class="fav-row" data-id="270">
-            <img src="https://media.api-sports.io/football/leagues/270.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">1st Division</span>
-              <span class="fav-country">Cyprus</span>
-            </span>
-            <button class="fav-star" data-id="270" title="Favourite">&#9733;</button>
-          </div>
-          <div class="fav-row" data-id="307">
-            <img src="https://media.api-sports.io/football/leagues/307.png" class="fav-logo" onerror="this.style.opacity='.3'">
-            <span class="fav-info">
-              <span class="fav-name">Saudi Pro League</span>
-              <span class="fav-country">Saudi Arabia</span>
-            </span>
-            <button class="fav-star" data-id="307" title="Favourite">&#9733;</button>
-          </div>
-    </div>
+<script>
+const LEAGUES = [
+  {id:2,name:"UCL"},
+  {id:3,name:"UEL"},
+  {id:39,name:"EPL"},
+  {id:140,name:"La Liga"},
+  {id:78,name:"Bundesliga"},
+  {id:135,name:"Serie A"}
+];
 
-    <!-- CENTER: Widget -->
-    <div class="main-panel">
-      <div class="main-panel-header">
-        <div class="main-panel-title"><span class="ico">&#x26BD;</span> Fixtures &amp; Results</div>
-        <span class="filter-badge" id="filter-badge">All Leagues</span>
-      </div>
-      <div id="widget-container">
-        <api-sports-widget data-type="games" data-date="2026-04-18"></api-sports-widget>
-      </div>
-    </div>
+let currentLeague = null;
+let favMode = false;
+let currentDate = new Date().toISOString().split('T')[0];
 
-    <!-- RIGHT: Dynamic detail -->
-    <div class="detail-sidebar">
-      <div class="detail-panel"><div id="standings-content"></div></div>
-      <div class="detail-panel"><div id="team-content"></div></div>
-    </div>
+/* SAFE STORAGE */
+function safeStorage(){
+  try{
+    localStorage.setItem('_t','1');
+    localStorage.removeItem('_t');
+    return true;
+  }catch(e){return false;}
+}
 
-  </div>
+function getFavs(){
+  if(!safeStorage()) return [];
+  try{return JSON.parse(localStorage.getItem('favs'))||[]}catch(e){return [];}
+}
 
-  <footer>Powered by <a href="https://www.api-football.com" target="_blank">API-Football</a> &mdash; Refreshes every 20s</footer>
+function setFavs(favs){
+  if(!safeStorage()) return;
+  localStorage.setItem('favs', JSON.stringify(favs));
+}
 
-  <!-- FAVORITES MODAL -->
-  <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
-    <div class="modal">
-      <div class="modal-header">
-        <span class="modal-title">&#9733; Select Your Leagues</span>
-        <button class="modal-close" onclick="closeModal()">&#x2715;</button>
-      </div>
-      <div class="modal-sub">Check the leagues you want to see. Leave all unchecked to show everything.</div>
-      <div class="modal-body" id="modal-body"></div>
-      <div class="modal-footer">
-        <button class="btn-reset" onclick="resetFavs()">Show All</button>
-        <button class="btn-apply" onclick="applyFavs()">Apply</button>
-      </div>
-    </div>
-  </div>
+/* RENDER LEAGUES */
+function renderLeagues(){
+  const container = document.getElementById('leagueList');
+  container.innerHTML = '';
 
-  <!-- WIDGET CONFIG -->
-  <api-sports-widget
-    data-type="config"
-    data-sport="football"
-    data-key="1b6cb2f77346c107941c5180d1881f77"
-    data-lang="en"
-    data-theme="dark"
-    data-show-error="true"
-    data-show-logos="true"
-    data-refresh="20"
-    data-standings="true"
-    data-team-squad="true"
-    data-team-statistics="true"
-    data-player-statistics="true"
-    data-tab="games"
-    data-game-tab="statistics"
-    data-target-player="modal"
-    data-target-team="#team-content"
-    data-target-standings="#standings-content"
-  ></api-sports-widget>
+  const favs = getFavs();
+  const list = (favMode && favs.length) ? LEAGUES.filter(l=>favs.includes(l.id)) : LEAGUES;
 
-  <script>
-    var ALL_LEAGUES = [{"id": 2, "name": "UEFA Champions League", "country": "Europe"}, {"id": 3, "name": "UEFA Europa League", "country": "Europe"}, {"id": 848, "name": "Conference League", "country": "Europe"}, {"id": 39, "name": "Premier League", "country": "England"}, {"id": 40, "name": "Championship", "country": "England"}, {"id": 140, "name": "La Liga", "country": "Spain"}, {"id": 78, "name": "Bundesliga", "country": "Germany"}, {"id": 135, "name": "Serie A", "country": "Italy"}, {"id": 61, "name": "Ligue 1", "country": "France"}, {"id": 88, "name": "Eredivisie", "country": "Netherlands"}, {"id": 94, "name": "Primeira Liga", "country": "Portugal"}, {"id": 113, "name": "Allsvenskan", "country": "Sweden"}, {"id": 197, "name": "Super League", "country": "Greece"}, {"id": 270, "name": "1st Division", "country": "Cyprus"}, {"id": 307, "name": "Saudi Pro League", "country": "Saudi Arabia"}];
-    var currentDate = '2026-04-18';
-    var pendingFavs = [];
+  list.forEach(lg=>{
+    const div = document.createElement('div');
+    div.className = 'league' + (lg.id === currentLeague ? ' active':'');
+    div.textContent = lg.name;
 
-    // Load saved favs from localStorage
-    function loadFavs() {
-      try {
-        var saved = localStorage.getItem('ls_favs');
-        return saved ? JSON.parse(saved) : [];
-      } catch(e) { return []; }
-    }
+    div.onclick = ()=>{
+      currentLeague = lg.id;
+      loadWidget(lg.id);
+      renderLeagues();
+    };
 
-    function saveFavs(favs) {
-      try { localStorage.setItem('ls_favs', JSON.stringify(favs)); } catch(e) {}
-    }
-
-    // Refresh widget with optional league filter
-    function makeWidget(leagueId) {
-      var w = document.createElement('api-sports-widget');
-      w.setAttribute('data-type', 'games');
-      w.setAttribute('data-date', currentDate);
-      if (leagueId) w.setAttribute('data-league', String(leagueId));
-      return w;
-    }
-
-    function refreshWidget(leagueId) {
-      document.getElementById('standings-content').innerHTML = '';
-      document.getElementById('team-content').innerHTML = '';
-
-      var container = document.getElementById('widget-container');
-      container.innerHTML = '';
-
-      // If a specific league is selected (sidebar click), show just that one
-      if (leagueId) {
-        var w = makeWidget(leagueId);
-        container.appendChild(w);
-        if (typeof w.connectedCallback === 'function') w.connectedCallback();
-        return;
-      }
-
-      // Otherwise check if user has favorites selected
-      var favs = loadFavs();
-      if (favs.length > 0) {
-        // Load one widget per favorite league — this is the only way to filter
-        favs.forEach(function(fid, idx) {
-          var block = document.createElement('div');
-          block.className = 'league-block';
-          var w = makeWidget(fid);
-          block.appendChild(w);
-          container.appendChild(block);
-          setTimeout(function() {
-            if (typeof w.connectedCallback === 'function') w.connectedCallback();
-          }, idx * 300);
-        });
-      } else {
-        // No filter — load all games in one call
-        var w = makeWidget(null);
-        container.appendChild(w);
-        if (typeof w.connectedCallback === 'function') w.connectedCallback();
-      }
-    }
-
-    // Update sidebar active state + filter badge
-    function updateSidebar(favs) {
-      var rows = document.querySelectorAll('.fav-row');
-      rows.forEach(function(row) {
-        var id = parseInt(row.getAttribute('data-id'), 10);
-        var starred = favs.indexOf(id) !== -1;
-        row.querySelector('.fav-star').classList.toggle('starred', starred);
-        // If favs set, hide non-favs in sidebar
-        if (favs.length > 0) {
-          row.classList.toggle('hidden-league', !starred);
-        } else {
-          row.classList.remove('hidden-league');
-        }
-      });
-
-      var badge = document.getElementById('filter-badge');
-      badge.textContent = favs.length > 0 ? favs.length + ' League' + (favs.length > 1 ? 's' : '') : 'All Leagues';
-    }
-
-    // Date switch
-    function switchDate(btn) {
-      document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentDate = btn.getAttribute('data-date');
-      // Clear any single-league selection, reload with favs if set
-      document.querySelectorAll('.fav-row').forEach(r => r.classList.remove('active-league'));
-      refreshWidget(null);
-    }
-
-    // Sidebar league click — show only that league
-    document.querySelectorAll('.fav-row').forEach(function(row) {
-      row.addEventListener('click', function(e) {
-        if (e.target.classList.contains('fav-star')) return;
-        document.querySelectorAll('.fav-row').forEach(r => r.classList.remove('active-league'));
-        this.classList.add('active-league');
-        refreshWidget(parseInt(this.getAttribute('data-id'), 10));
-      });
+    // LONG PRESS FOR MOBILE
+    let pressTimer;
+    div.addEventListener('touchstart', ()=>{
+      pressTimer = setTimeout(()=>toggleFav(lg.id), 500);
     });
+    div.addEventListener('touchend', ()=>clearTimeout(pressTimer));
 
-    // Star button in sidebar — quick toggle fav
-    document.querySelectorAll('.fav-star').forEach(function(btn) {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        var id = parseInt(this.getAttribute('data-id'), 10);
-        var favs = loadFavs();
-        var idx = favs.indexOf(id);
-        if (idx === -1) { favs.push(id); } else { favs.splice(idx, 1); }
-        saveFavs(favs);
-        updateSidebar(favs);
-      });
-    });
+    // DESKTOP RIGHT CLICK
+    div.oncontextmenu = (e)=>{
+      e.preventDefault();
+      toggleFav(lg.id);
+    };
 
-    // MODAL
-    function openModal() {
-      pendingFavs = loadFavs().slice();
-      buildModal();
-      document.getElementById('modal-overlay').classList.add('open');
-    }
+    container.appendChild(div);
+  });
+}
 
-    function closeModal() {
-      document.getElementById('modal-overlay').classList.remove('open');
-    }
+/* FAVORITES */
+function toggleFav(id){
+  let favs = getFavs();
+  const index = favs.indexOf(id);
 
-    function handleOverlayClick(e) {
-      if (e.target === document.getElementById('modal-overlay')) closeModal();
-    }
+  if(index === -1) favs.push(id);
+  else favs.splice(index,1);
 
-    function buildModal() {
-      var body = document.getElementById('modal-body');
-      body.innerHTML = '';
-      ALL_LEAGUES.forEach(function(lg) {
-        var checked = pendingFavs.indexOf(lg.id) !== -1;
-        var row = document.createElement('div');
-        row.className = 'modal-league-row';
-        row.innerHTML = '<img src="https://media.api-sports.io/football/leagues/' + lg.id + '.png" class="modal-logo" onerror="this.style.opacity=.3">' +
-          '<div class="modal-info"><div class="modal-lname">' + lg.name + '</div><div class="modal-lcountry">' + lg.country + '</div></div>' +
-          '<div class="modal-check' + (checked ? ' checked' : '') + '">' + (checked ? '&#10003;' : '') + '</div>';
-        row.addEventListener('click', function() {
-          var idx = pendingFavs.indexOf(lg.id);
-          if (idx === -1) { pendingFavs.push(lg.id); } else { pendingFavs.splice(idx, 1); }
-          var chk = row.querySelector('.modal-check');
-          var isc = pendingFavs.indexOf(lg.id) !== -1;
-          chk.classList.toggle('checked', isc);
-          chk.innerHTML = isc ? '&#10003;' : '';
-        });
-        body.appendChild(row);
-      });
-    }
+  setFavs(favs);
+  renderLeagues();
+}
 
-    function applyFavs() {
-      saveFavs(pendingFavs);
-      updateSidebar(pendingFavs);
-      closeModal();
-      // Clear active league selection, reload full filtered view
-      document.querySelectorAll('.fav-row').forEach(r => r.classList.remove('active-league'));
-      refreshWidget(null);
-    }
+function toggleFavMode(){
+  favMode = !favMode;
+  renderLeagues();
+  loadWidget(currentLeague);
+}
 
-    function resetFavs() {
-      pendingFavs = [];
-      saveFavs([]);
-      updateSidebar([]);
-      closeModal();
-      document.querySelectorAll('.fav-row').forEach(r => r.classList.remove('active-league'));
-      refreshWidget(null);
-    }
+/* LOAD WIDGET (FAST + RELIABLE) */
+function loadWidget(leagueId){
+  const container = document.getElementById('widget');
+  container.innerHTML = '';
 
-    // Init on load
-    window.addEventListener('DOMContentLoaded', function() {
-      var favs = loadFavs();
-      updateSidebar(favs);
-    });
-  </script>
+  const w = document.createElement('api-sports-widget');
+  w.setAttribute('data-type','games');
+  w.setAttribute('data-date', currentDate);
+
+  if(leagueId){
+    w.setAttribute('data-league', leagueId);
+  }
+
+  requestAnimationFrame(()=>{
+    container.appendChild(w);
+  });
+}
+
+/* INIT */
+window.addEventListener('DOMContentLoaded', ()=>{
+  renderLeagues();
+  loadWidget(null);
+});
+</script>
+
+<!-- CONFIG -->
+<api-sports-widget
+  data-type="config"
+  data-sport="football"
+  data-key="1b6cb2f77346c107941c5180d1881f77"
+  data-theme="dark"
+  data-refresh="30"
+></api-sports-widget>
 
 </body>
 </html>
