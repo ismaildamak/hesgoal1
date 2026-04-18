@@ -1,8 +1,13 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LiveScore</title><script type="module" src="https://widgets.api-sports.io/3.1.0/widgets.js"></script><style>
+<title>LiveScore</title>
+
+<script type="module" src="https://widgets.api-sports.io/3.1.0/widgets.js"></script>
+
+<style>
 body{
   margin:0;
   font-family:sans-serif;
@@ -63,14 +68,26 @@ body{
   padding:10px;
   min-height:150px;
 }
-</style></head><body><div class="header">
+</style>
+</head>
+
+<body>
+
+<div class="header">
   <div class="title">⚽ LiveScore</div>
   <button class="btn" onclick="toggleFavMode()">Favorites</button>
-</div><div class="leagues" id="leagueList"></div>
-<div id="widget"></div><!-- 🔊 FLASHSCORE-STYLE SOUND SYSTEM --><audio id="goalSound" preload="auto">
+</div>
+
+<div class="leagues" id="leagueList"></div>
+<div id="widget"></div>
+
+<!-- 🔊 FLASHSCORE-STYLE SOUND SYSTEM -->
+<audio id="goalSound" preload="auto">
   <source src="https://actions.google.com/sounds/v1/sports/cheering_medium_short.ogg" type="audio/ogg">
   <source src="https://actions.google.com/sounds/v1/sports/cheering_medium_short.mp3" type="audio/mpeg">
-</audio><script>
+</audio>
+
+<script>
 const LEAGUES = [
   {id:39,name:"EPL"},
   {id:40,name:"Championship"},
@@ -170,9 +187,16 @@ window.addEventListener('DOMContentLoaded',()=>{
   renderLeagues();
   loadWidget(null);
 });
-</script><api-sports-widget data-type="config" data-sport="football" data-key="1b6cb2f77346c107941c5180d1881f77" data-theme="dark" data-refresh="30" data-show-logos="true"
+</script>
 
-> </api-sports-widget>
+<api-sports-widget
+  data-type="config"
+  data-sport="football"
+  data-key="1b6cb2f77346c107941c5180d1881f77"
+  data-theme="dark"
+  data-refresh="10"
+  data-show-logos="true"
+></api-sports-widget>
 
 </body>
 </html>
